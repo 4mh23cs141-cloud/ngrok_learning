@@ -2,12 +2,20 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from database import engine, Base
 from routes.user import router as user_router
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Create all tables on startup
-    Base.metadata.create_all(bind=engine)
+    try:
+        Base.metadata.create_all(bind=engine)
+        logger.info("Database tables created successfully")
+    except Exception as e:
+        logger.error(f"Database error: {e}")
     yield
 
 
